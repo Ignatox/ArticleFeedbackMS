@@ -1,4 +1,4 @@
-### Acerca de ArticleFeedbackMS
+### Acerca de ArticleFeedbackMS Beta
 Microservicio presentado como caso de estudio para el e-commerce de la cátedra de Arquitectura de microservicios.
 
 Se encarga de facilitarle al usuario la posibilidad de dar un feedback a los artículos que ya compró.
@@ -10,7 +10,7 @@ La base de datos del microservicio es almacenada en MongoDB
 
 #### Estructura de Datos
 
-##### ArticleFeedBack
+![](resources/ClassDiagramV1.jpg)
 
 
 #### Conexiones a otros Microservicios - RabbitMQ
