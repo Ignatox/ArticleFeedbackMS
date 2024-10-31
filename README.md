@@ -33,15 +33,24 @@ Se realizan conexiones tales como:
 
 ##### Order Service (Órdenes de Compra)
 - Antes de permitir que el usuario publique un feedback sobre un artículo, **ArticleFeedbackMS**  se conecta con el **Order Service** para verificar si este usuario compró el artículo.
+- *Con order placed???*
 (PREGUNTAR EL SIGUIENTE)
 - Al consultar los comentarios se utiliza también para mostrar sólo los comentarios que los usuarios realmente hayan comprado.
+
+##### Catálog Service
+- *Article Exist?*
 
 #### Casos de Uso de ArticleFeedback
 ##### 1. Registrar Feedback de un Artículo
 
 **Descripción:** Un usuario puede registrar un comentario y su valoración (like o dislike) en un artículo que ha comprado.
+**Precondición:** El artículo debe haber sido comprado con anterioridad por el usuario? (Uso order placed)? , El usuario debe estar auntenticado?? (Auth)
 **Entradas:** userId, articleId, comment, liked (booleano), createdAt.
 **Resultado:** El feedback se almacena y se asocia con el artículo y el usuario correspondiente.
+
+**Camino Normal:**
+
+**Camino Alternativo:**
 
 ##### 2. Obtener Feedback por Artículo
 
@@ -50,8 +59,16 @@ Se realizan conexiones tales como:
 **Salida:** Lista de comentarios asociados a ese artículo, incluyendo el texto del comentario, autor y fecha de creación.
 **Información Adicional:** Número total de likes y dislikes acumulados para ese artículo, ordenados para mostrar los comentarios más populares primero.
 
+**Camino Normal:**
+
+**Camino Alternativo:**
+
 ##### 3. Obtener Feedback por Usuario
 
 **Descripción:** Permite consultar todos los comentarios realizados por un usuario específico en diferentes artículos.
 **Entradas:** userId.
 **Salida:** Lista de artículos con sus comentarios, fecha y valoración (liked) que hizo el usuario.
+
+**Camino Normal:**
+
+**Camino Alternativo:**
