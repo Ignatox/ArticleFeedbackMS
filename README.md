@@ -39,19 +39,19 @@ Se realizan conexiones tales como:
 #### Casos de Uso de ArticleFeedback
 ##### 1. Registrar Feedback de un Artículo
 
-**Descripción: **Un usuario puede registrar un comentario y su valoración (like o dislike) en un artículo que ha comprado.
+**Descripción:** Un usuario puede registrar un comentario y su valoración (like o dislike) en un artículo que ha comprado.
 **Entradas:** userId, articleId, comment, liked (booleano), createdAt.
-**Resultado: ** El feedback se almacena y se asocia con el artículo y el usuario correspondiente.
+**Resultado:** El feedback se almacena y se asocia con el artículo y el usuario correspondiente.
 
 ##### 2. Obtener Feedback por Artículo
 
-**Descripción: **Permite a los usuarios consultar todos los comentarios realizados sobre un artículo específico.
+**Descripción:** Permite a los usuarios consultar todos los comentarios realizados sobre un artículo específico.
 **Entradas:** articleId.
 **Salida:** Lista de comentarios asociados a ese artículo, incluyendo el texto del comentario, autor y fecha de creación.
-**Información Adicional: **Número total de likes y dislikes acumulados para ese artículo, ordenados para mostrar los comentarios más populares primero.
+**Información Adicional:** Número total de likes y dislikes acumulados para ese artículo, ordenados para mostrar los comentarios más populares primero.
 
 ##### 3. Obtener Feedback por Usuario
 
-**Descripción: **Permite consultar todos los comentarios realizados por un usuario específico en diferentes artículos.
-**Entradas: **userId.
-**Salida**: Lista de artículos con sus comentarios, fecha y valoración (liked) que hizo el usuario.
+**Descripción:** Permite consultar todos los comentarios realizados por un usuario específico en diferentes artículos.
+**Entradas:** userId.
+**Salida:** Lista de artículos con sus comentarios, fecha y valoración (liked) que hizo el usuario.
