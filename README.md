@@ -10,6 +10,9 @@ La base de datos del microservicio es almacenada en MongoDB
 
 #### Estructura de Datos
 
+
+![](resources/ClassDiagramV2.jpg)
+
 _ArticleFeedback_
 - articleFeedbackId: Long
 - userId: Long
