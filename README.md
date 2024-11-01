@@ -1,8 +1,8 @@
 ### Acerca de ArticleFeedbackMS Beta
 Microservicio presentado como caso de estudio para el e-commerce de la cátedra de Arquitectura de microservicios.
 
-Se encarga de facilitarle al usuario la posibilidad de dar un feedback a los artículos que ya compró.
-
+Se encarga de darle la posiblidad al usuario de brindar un feedback, con comentario y like/dislike a los artículos que compró.
+Permite además consultar una lista de _Feedbacks pendientes_ para completarlos posteriormente.
 Permite a los usuarios poder consultar las experiencias de otros con un artículo específico, además de poder consultar todos los feedbacks realizados por un usuario.
 
 #### MongoDB
@@ -150,3 +150,116 @@ DUDA(((Muestra también el _total de likes o dislikes de el articulo._)))
 
 **Camino Alternativo:**
 - Si el usuario no ha creado feedbacks para el artículo, se devuevlve una lista vacía
+
+
+### Interfaz REST
+
+**Listar artículos pendientes de feedback**
+
+`GET /v1/article-feedback/pending`
+
+*Headers*
+
+Authorization: Bearer token
+
+userId: Id del usuario autenticado.
+
+*Response*
+`200 OK` si el usuario está autenticado
+```json
+[
+  {
+    "articleFeedbackId": "12345",
+    "articleId": "56789",
+    "userId": "101112",
+    "status": "PENDIENTE",
+    "createdAt": "2024-10-12T08:42:00Z"
+  },
+  ...
+]
+```
+
+`401 UNAUTHORIZED` si el usuario no está autenticado
+
+**Llenar ArticleFeedbacksPendientes**
+
+`GET /v1/article-feedback/{articleFeedbackId}/fill`
+
+*Headers*
+
+Authorization: Bearer token
+
+*Parámetro de ruta*
+
+articleFeedbackId: ID del feedback a completar.
+
+*Body*
+```json
+{
+"comment": "string",
+"liked": true
+}
+```
+
+*Response*
+`200 OK` Si el ArticleFeedback cambio su estado a COMPLETADO.
+```json
+{
+  "articleFeedbackId": "12345",
+  "articleId": "56789",
+  "userId": "101112",
+  "comment": "Un producto increíble",
+  "liked": true,
+  "statusArticleFeedback": {
+    "status": "COMPLETADO",
+    "updatedAt": "2024-10-12T08:45:00Z"
+  }
+}
+
+```
+
+`401 UNAUTHORIZED` si el usuario no está autenticado
+
+**Listar articleFeedbacks por artículo**
+`GET /v1/article-feedback`
+
+*Headers*
+
+Authorization: Bearer token
+
+*Query Parameters (Opcional)*
+- articleId (Long, opcional): ID del artículo para filtrar los feedbacks por artículo.
+
+- userId (Long, opcional): ID del usuario para filtrar los feedbacks por usuario.
+
+*Response*
+`200 OK` si el usuario está autenticado.
+```json
+[
+    {
+      "articleFeedbackId": "12345",
+      "articleId": "56789",
+      "userId": "101112",
+      "comment": "Increible producto",
+      "liked": true,
+      "createdAt": "2024-10-01T08:30:00Z",
+      "updatedAt": "2024-10-12T08:45:00Z"
+    },
+    {
+      "articleFeedbackId": "12346",
+      "articleId": "56789",
+      "userId": "101113",
+      "comment": "Podría estar mejor",
+      "liked": false,
+      "createdAt": "2024-10-03T09:00:00Z",
+      "updatedAt": "2024-10-13T10:00:00Z"
+    }
+  ]
+
+```
+
+`401 UNAUTHORIZED` si el usuario no está autenticado
+
+
+
+
