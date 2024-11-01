@@ -10,65 +10,140 @@ La base de datos del microservicio es almacenada en MongoDB
 
 #### Estructura de Datos
 
-![](resources/ClassDiagramV1.jpg)
+_ArticleFeedback_
+- articleFeedbackId: Long
+- userId: Long
+- articleId: Long
+- statusArticleFeedbackId: Long
+- comment: String
+- liked: boolean
+- createdAt: Date
+
+_StatusArticleFeedback_
+- articleFeedbackId: Long
+- updatedAt: Date
+- statusName: String
+
+_ArticleLikeSummary_
+- articleId: Long
+- totalLikes: int
+- totalDislikes: int
 
 
 #### Conexiones a otros Microservicios - RabbitMQ
 Este microservicio se comunica con los demás del ecosistema del e-commerce a través de Rabbit.
-Se realizan conexiones tales como:
-##### Catalog Service (Cátalogo de Artículos) 
-- Cuando un usuario busca feedbacks de un artículo en específico,  **ArticleFeedbackMS** puede conectarse con el **Catalog Service** para asegurarse de que el artículo existe.
 
-- Si un usuario intenta dar un feedback  con comentario: like/dislike a un artículo existente, la validación viene de este microservicio.
-
-(CONTINUAR)
-
-##### Auth Service (Autenticación de Usuarios)
-
- (PREGUNTAR)
- 
-- Al dar un feedback sobre un artículo, es importante validar que el usuario esté autenticado. ArticleFeedbackService enviaría el token JWT al **AuthService** para validar si el usuario es válido.
-
-- Este microservicio debe escuchar el evento ** "logout"** que emite **Auth** para invalidar los tokens localmente.
-
-##### Order Service (Órdenes de Compra)
-- Antes de permitir que el usuario publique un feedback sobre un artículo, **ArticleFeedbackMS**  se conecta con el **Order Service** para verificar si este usuario compró el artículo.
-- *Con order placed???*
-(PREGUNTAR EL SIGUIENTE)
-- Al consultar los comentarios se utiliza también para mostrar sólo los comentarios que los usuarios realmente hayan comprado.
-
-##### Catálog Service
-- *Article Exist?*
+- Order_placed (servicio de catálogo)
+ArticleFeedbackMS escucha el mensaje "order_placed" de catálogo para posteriormente crear un ArticleFeedback con estado "pendiente".
 
 #### Casos de Uso de ArticleFeedback
-##### 1. Registrar Feedback de un Artículo
+- **CU: Crear Feedback de un Artículo**
+  
+**Descripción:** Cuando una orden es completada, se crea de manera automática, un ArticleFeedback relacionado al articulo y al usuario de la orden, en estado PENDIENTE.
 
-**Descripción:** Un usuario puede registrar un comentario y su valoración (like o dislike) en un artículo que ha comprado.
-**Precondición:** El artículo debe haber sido comprado con anterioridad por el usuario? (Uso order placed)? , El usuario debe estar auntenticado?? (Auth)
-**Entradas:** userId, articleId, comment, liked (booleano), createdAt.
-**Resultado:** El feedback se almacena y se asocia con el artículo y el usuario correspondiente.
+**Precondición:** El evento order_placed ha sido emitido y contiene _userId y ArticleId_
+
+**Entradas:** Información extraída de order_placed
+
+**Salida:** El feedback se almacena y se asocia con el artículo, el usuario y un estadoArticleFeedback inicializado en PENDIENTE.
 
 **Camino Normal:**
+1. El sistem escucha el evento order_placed
+2. Se extraen userId y articleId del evento
+3. Se crea un nuevo ArticleFeedback con statusArticleFeedback en PENDIENTE, con el articleId y userId de la orden que se recibió.
 
 **Camino Alternativo:**
 
-##### 2. Obtener Feedback por Artículo
+- **CU: Listar ArticleFeedbacks con estado pendiente.**
 
-**Descripción:** Permite a los usuarios consultar todos los comentarios realizados sobre un artículo específico.
+**Descripción:** Permite a un usuario listar sus ArticleFeedback que no han sido completados.
+
+**Precondición:** El usuario debe estar autenticado.
+
+**Entradas:** userId
+
+**Salida:** Lista de ArticleFeedbacks con estado PENDIENTE.
+
+**Camino Normal:**
+1. El usuario envía una solicituda para ver feedbacks pendientes.
+2. El microservicio consulta los ArticleFeedback del userId con statusArticleFeedback en PENDIENTE.
+3. Se muestra la lista al usuario
+
+**Camino Alternativo:**
+- Si el usuario no tiene feedbacks pendientes, se devuelve una lista vacía.
+
+
+- **CU: Llenar ArticleFeedback pendiente**
+
+**Descripción:** Un usuario puede registrar un comentario y su valoración (like o dislike) en un articleFeedback con statusArticleFeedback PENDIENTE.
+
+**Precondición:** El usuario debe estar autenticado, y el ArticleFeedback debe tener estadoArticleFeedback en PENDIENTE.
+
+**Entradas:** articleFeedbackId, comment(string) , liked (boolean).
+
+**Resultado:** El statusArticleFeedback cambia su statusName a COMPLETADO y se actualiza el campo updatedAt. Se dispara el _CU: Actualizar conteo de likes para un artículo_
+
+**Camino Normal:**
+1. El usuario envía los datos de comment y liked para un ArticleFeedback en PENDIENTE.
+2. El microservicio cambia el statusName de statusArticleFeedback a COMPLETADO y actualiza updatedAt.
+3. Se lanza el CU: Actualizar conteo de likes para un árticulo.
+
+**Camino Alternativo:**
+- Si el ArticleFeedback ya ha sido completado , el sistema rechaza la solicitud.
+
+- **CU: Actualizar conteo de likes para un artículo**
+
+**Descripción:** Después de coompletar un feedback, el sistema incrementa el total de likes/dislikes en ArticleLikeSummary.
+
+**Precondición:** Un ArticleFeedback cambió su estado a COMPLETADO.
+
+**Entradas:** liked (boolean), articuloId
+
+**Resultado:** Se incrementa el valor de totalLikes o totalDislikes de la entidad ArticleLikeSummary asociada a dicho artículo, dependiendo del valor del booleano liked.
+
+**Camino Normal:**
+1. El sistema verifica si liked es true o false.
+2. Se busca la entidad ArticleLikeSummary con articuloId igual al pasado por parámetro.
+3. Si el valor de like es true, se incrementa el totalLikes, si es false el totalDislikes
+5. Se almacena el nuevo conteo en la entidad ArticleLikeSummary.
+
+**Camino Alternativo:**
+- Si no se ecuentra un articleLikeSummary para ese articuloId, se crea uno nuevo.
+
+
+- **CU: Listar ArticleFeedbacks por Artículo**
+
+**Descripción:** Permite a el usuario consultar todos los comentarios realizados sobre un artículo específico.
+
+**Precondición:** El usuario debe estar autenticado.
+
 **Entradas:** articleId.
-**Salida:** Lista de comentarios asociados a ese artículo, incluyendo el texto del comentario, autor y fecha de creación.
-**Información Adicional:** Número total de likes y dislikes acumulados para ese artículo, ordenados para mostrar los comentarios más populares primero.
+
+**Salida:** Lista de ArticleFeedback ascoiados a ese articleId, incluyendo _comment, liked, userId y updatedAt_ . 
+DUDA(((Muestra también el _total de likes o dislikes de el articulo._)))
 
 **Camino Normal:**
+1. EL usuario solicita ver los ArticleFeedback de un artículo.
+2. El microservicio busca todos los feedbacks con estado igual a COMPLETADO para el articleId correspondiente.
+3. Se muestra la lista de feedbacks, **junto con el total de likes y dislikes**
 
 **Camino Alternativo:**
+- Si no existen feedbacks para el artículo, se devuelve una lista vacía
 
-##### 3. Obtener Feedback por Usuario
+- **CU: Listar ArticleFeedbacks por Usuario**
 
-**Descripción:** Permite consultar todos los comentarios realizados por un usuario específico en diferentes artículos.
-**Entradas:** userId.
-**Salida:** Lista de artículos con sus comentarios, fecha y valoración (liked) que hizo el usuario.
+**Descripción:** Permite a el usuario consultar todos los comentarios realizados sobre un artículo específico por un usuario específico.
+
+**Precondición:** El usuario debe estar autenticado.
+
+**Entradas:** articleId, userId
+
+**Salida:** Lista de ArticleFeedback, creados por el _userId_ y asociados al _articleId__, incluyendo _comment, liked y updatedAt_
 
 **Camino Normal:**
+1. El usuario solicita vert los feedbacks por un usuario específico para un artículo.
+2. El sistema busca todos los feedbacks que coincidan con userId y articleId, que tengan estado COMPLETADO.
+3. Se muestra la lista de los feedbacks
 
 **Camino Alternativo:**
+- Si el usuario no ha creado feedbacks para el artículo, se devuevlve una lista vacía
