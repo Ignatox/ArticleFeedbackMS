@@ -11,7 +11,7 @@ La base de datos del microservicio es almacenada en MongoDB
 #### Estructura de Datos
 
 
-![](resources/ClassDiagramV2.jpg)
+![](resources/ClassDiagramV3.jpg)
 
 _ArticleFeedback_
 - articleFeedbackId: Long
@@ -21,11 +21,8 @@ _ArticleFeedback_
 - comment: String
 - liked: boolean
 - createdAt: Date
-
-_StatusArticleFeedback_
-- articleFeedbackId: Long
 - updatedAt: Date
-- statusName: String
+- status: String
 
 _ArticleLikeSummary_
 - articleId: Long
