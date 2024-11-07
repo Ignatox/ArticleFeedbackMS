@@ -202,8 +202,8 @@ Authorization: Bearer token
     "articleFeedbackId": "12348",
     "comment": "Me gustó mucho",
     "liked": true,
-    "createdAt": "2024-10-12T08:42:00Z
-    "updatedAt": "2024-10-15T08:42:00Z
+    "createdAt": "2024-10-12T08:42:00Z"
+    "updatedAt": "2024-10-15T08:42:00Z"
   },
   ...
 ]
