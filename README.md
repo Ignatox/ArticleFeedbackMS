@@ -5,10 +5,12 @@ Se encarga de darle la posiblidad al usuario de brindar un feedback, con comenta
 Permite además consultar una lista de _Feedbacks pendientes_ para completarlos posteriormente.
 Permite a los usuarios poder consultar las experiencias de otros con un artículo específico, además de poder consultar todos los feedbacks realizados por un usuario.
 
-#### MongoDB
+*MongoDB*
+-
 La base de datos del microservicio es almacenada en MongoDB
 
-#### Estructura de Datos
+*Estructura de Datos*
+-
 
 
 ![](resources/ClassDiagramV3.jpg)
@@ -30,7 +32,8 @@ _ArticleLikeSummary_
 - totalDislikes: int
 
 
-#### Conexiones a otros Microservicios - RabbitMQ
+*Conexiones a otros Microservicios - RabbitMQ*
+-
 Este microservicio se comunica con los demás del ecosistema del e-commerce a través de Rabbit.
 
 - Order_placed (servicio de catálogo)
@@ -39,9 +42,10 @@ ArticleFeedbackMS escucha el mensaje "order_placed" de catálogo para posteriorm
 - update_likes_queue para el conteo de likes/dislikes
 ArticleFeedbackMS emite un mensaje a la cola update_likes_queue para que luego dicho evento actualice el conteo de likes y dislikes de un articulo de manera asincrónica con ArticleSummary para mantener una contabilización precisa de likes y dislikes para cada artículo.
 
-#### Casos de Uso de ArticleFeedback
-#### 1. **CU: Crear Feedback de un Artículo**
-  
+Casos de Uso de ArticleFeedback
+-
+**1. CU: Crear Feedback de un Artículo**
+  -
 **Descripción:** Cuando una orden es completada, se crea de manera automática, un ArticleFeedback relacionado al articulo y al usuario de la orden, en estado PENDIENTE.
 
 **Precondición:** El evento order_placed ha sido emitido y contiene _userId y ArticleId_
@@ -55,9 +59,9 @@ ArticleFeedbackMS emite un mensaje a la cola update_likes_queue para que luego d
 2. Se extraen userId y articleId del evento
 3. Se crea un nuevo ArticleFeedback con status en PENDIENTE, con el articleId y userId de la orden que se recibió.
 
-**Camino Alternativo:**
 
-#### 2. CU: Consultar ArticleFeedbacks Pendientes.
+**2. CU: Consultar ArticleFeedbacks Pendientes.**
+-
 
 **Descripción:** Permite a un usuario listar sus ArticleFeedback que no han sido completados.
 
@@ -76,8 +80,8 @@ ArticleFeedbackMS emite un mensaje a la cola update_likes_queue para que luego d
 - Si el usuario no tiene feedbacks pendientes, se devuelve una lista vacía.
 
 
-#### 3. **CU: Llenar ArticleFeedback pendiente**
-
+**3. CU: Llenar ArticleFeedback pendiente**
+-
 **Descripción:** Un usuario puede registrar un comentario y su valoración (like o dislike) en un articleFeedback con estado PENDIENTE.
 
 **Precondición:** El usuario debe estar autenticado, y el ArticleFeedback debe tener estado PENDIENTE.
@@ -96,8 +100,8 @@ ArticleFeedbackMS emite un mensaje a la cola update_likes_queue para que luego d
 **Camino Alternativo:**
 - Si el ArticleFeedback no existe o ya ha sido completado , el sistema rechaza la solicitud.
 
-#### 4. **CU: Actualizar conteo de likes para un artículo**
-
+**4. CU: Actualizar conteo de likes para un artículo**
+-
 **Descripción:** Después de coompletar un feedback, calcula el conteo de likes y dislikes de un artículo desde cero.
 
 **Entradas:** liked (boolean), articuloId
@@ -113,8 +117,8 @@ ArticleFeedbackMS emite un mensaje a la cola update_likes_queue para que luego d
 - Si no se ecuentra un articleLikeSummary para ese articuloId, se crea uno nuevo.
 
 
-#### 5. **CU: Listar ArticleFeedbacks por Artículo**
-
+**5. CU: Listar ArticleFeedbacks por Artículo**
+-
 **Descripción:** Permite a el usuario consultar todos los comentarios realizados sobre un artículo específico.
 
 **Precondición:** El usuario debe estar autenticado.
@@ -127,13 +131,13 @@ ArticleFeedbackMS emite un mensaje a la cola update_likes_queue para que luego d
 1. EL usuario solicita ver los ArticleFeedback de un artículo especificando articleId.
 2. El sistema consulta a la base de datos para obtener los articleFeedbacks correspondeintes al articleId.
 3. Se invoca al CU: Actualizar conteo de likes para un artículo , donde pasa el articleId.
-4. El sistema responde con la lista de ArticleFeedbacks y los valores actualizados de totalLikes y totalDislikes
+4. El sistema responde con la lista de ArticleFeedbacks.
 
 **Camino Alternativo:**
 - Si no existen feedbacks para el artículo, se devuelve una lista vacía
 
-#### 6. **CU: Listar ArticleFeedbacks por Usuario**
-
+**6. CU: Listar ArticleFeedbacks por Usuario**
+-
 **Descripción:** Permite a el usuario consultar todos los comentarios realizados sobre un artículo específico por un usuario específico.
 
 **Precondición:** El usuario debe estar autenticado.
@@ -150,7 +154,10 @@ ArticleFeedbackMS emite un mensaje a la cola update_likes_queue para que luego d
 **Camino Alternativo:**
 - Si el usuario no ha creado feedbacks para el artículo, se devuevlve una lista vacía
 
-#### 7. **CU: Consultar Summary de un artículo por ID**
+**7. CU: Consultar Summary de un artículo por ID**
+-
+
+
 **Descripción:** Permite consultar el summary de un artículo.
 **Entradas**: articleId.
 **Salida**: totalLikes y totalDislikes del ArticleSummary correspondiente.
@@ -165,21 +172,19 @@ ArticleFeedbackMS emite un mensaje a la cola update_likes_queue para que luego d
 
 ### Interfaz REST
 
-**Listar articleFeedbacks pendientes o por usuario*
+**Listar articleFeedbacks pendientes o por usuario**
+-
 
-`GET /v1/article-feedback/user`
+`GET /v1/article-feedback?status={status}`
 
 *Headers*
 
 Authorization: Bearer token
 
-*Body*
-```json
-{
-"userId": "<userId>",
-"status": "PENDIENTE" // o completado
-}
-```
+*Query Params*
+
+status: permite filtrar feedbacks por estado (PENDIENTE/COMPLETADO)
+
 *Response para articleFeedbacks pendientes*
 `200 OK` si el usuario está autenticado
 ```json
@@ -212,15 +217,16 @@ Authorization: Bearer token
 *Otras responses para ambos casos*
 `401 UNAUTHORIZED` si el usuario no está autenticado
 
+
 **Llenar ArticleFeedback Pendiente**
+-
+`PUT /v1/article-feedback/{articleFeedbackId}`
 
-`GET /v1/article-feedback/{articleFeedbackId}/fill`
-
-*Headers*
+ *Headers*
 
 Authorization: Bearer token
 
-*Parámetro de ruta*
+*Query Params*
 
 articleFeedbackId: ID del feedback a completar.
 
@@ -233,25 +239,15 @@ articleFeedbackId: ID del feedback a completar.
 ```
 
 *Response*
-`200 OK` Si el ArticleFeedback cambio su estado a COMPLETADO.
-```json
-{
-  "articleFeedbackId": "12345",
-  "articleId": "56789",
-  "userId": "101112",
-  "comment": "Un producto increíble",
-  "liked": true,
-  "statusArticleFeedback": {
-    "status": "COMPLETADO",
-    "updatedAt": "2024-10-12T08:45:00Z"
-  }
-}
 
-```
+- `200 OK` Si el ArticleFeedback cambio su estado a COMPLETADO.
 
-`401 UNAUTHORIZED` si el usuario no está autenticado
+
+- `401 UNAUTHORIZED` si el usuario no está autenticado
+
 
 **Listar articleFeedbacks por artículo**
+- 
 `GET /v1/article-feedback/{articleId}`
 
 *Headers*
@@ -262,7 +258,8 @@ Authorization: Bearer token
 - articleId (Long): ID del artículo para filtrar los feedbacks por artículo.
 
 *Response*
-`200 OK` si el usuario está autenticado.
+
+- `200 OK` si el usuario está autenticado.
 ```json
 {
   "ArticleFeedback": [
@@ -275,18 +272,16 @@ Authorization: Bearer token
       "updatedAt": "<date>"
     },
     ...
-  ],
-  "totalLikes": "<totalLikes>",
-  "totalDislikes": "<totalDislikes>"
-}
+  ]
 
 
 
 ```
 
-`401 UNAUTHORIZED` si el usuario no está autenticado
+- `401 UNAUTHORIZED` si el usuario no está autenticado
 
 **Consultar Summary de un artículo por ID**
+-
 `GET /v1/article-feedback/{articleId}/summary`
 
 *Headers*
