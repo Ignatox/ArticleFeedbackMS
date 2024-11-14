@@ -121,7 +121,6 @@ Casos de Uso de ArticleFeedback
 -
 **Descripción:** Permite a el usuario consultar todos los comentarios realizados sobre un artículo específico.
 
-**Precondición:** El usuario debe estar autenticado.
 
 **Entradas:** articleId.
 
@@ -175,7 +174,7 @@ Casos de Uso de ArticleFeedback
 **Listar articleFeedbacks pendientes o por usuario**
 -
 
-`GET /v1/article-feedback?status={status}`
+`GET /v1/article-feedback/user?status={status}`
 
 *Headers*
 
@@ -226,7 +225,7 @@ status: permite filtrar feedbacks por estado (PENDIENTE/COMPLETADO)
 
 Authorization: Bearer token
 
-*Query Params*
+*Path Params*
 
 articleFeedbackId: ID del feedback a completar.
 
@@ -250,35 +249,43 @@ articleFeedbackId: ID del feedback a completar.
 - 
 `GET /v1/article-feedback/{articleId}`
 
-*Headers*
 
-Authorization: Bearer token
-
-*Query Parameters*
+*Path Parameters*
 - articleId (Long): ID del artículo para filtrar los feedbacks por artículo.
 
 *Response*
 
-- `200 OK` si el usuario está autenticado.
+- `200 OK` 
 ```json
-{
-  "ArticleFeedback": [
-    {
-      "articleFeedbackId": "<id>",
-      "userId": "<userId>",
-      "comment": "<comment>",
-      "liked": true,
-      "createdAt": "<date>",
-      "updatedAt": "<date>"
-    },
-    ...
-  ]
+[
+  {
+    "articleFeedbackId": "fb1",
+    "userId": "user123",
+    "comment": "Excelente calidad",
+    "liked": true,
+    "createdAt": "2024-10-10T14:30:00Z"
+  },
+  {
+    "articleFeedbackId": "fb2",
+    "userId": "user456",
+    "comment": "No fue lo esperado.",
+    "liked": false,
+    "createdAt": "2024-10-12T09:45:00Z"
+  },
+  {
+    "articleFeedbackId": "fb3",
+    "userId": "user789",
+    "comment": "Muy buena compra!",
+    "liked": true,
+    "createdAt": "2024-10-15T11:20:00Z"
+  }
+]
+
 
 
 
 ```
 
-- `401 UNAUTHORIZED` si el usuario no está autenticado
 
 **Consultar Summary de un artículo por ID**
 -
@@ -288,7 +295,7 @@ Authorization: Bearer token
 
 Authorization: Bearer token
 
-*Query Parameters*
+*Path Params*
 - articleId (Long): ID del artículo para filtrar los feedbacks por artículo.
 
 
