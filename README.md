@@ -184,7 +184,7 @@ Authorization: Bearer token
 
 status: permite filtrar feedbacks por estado (PENDIENTE/COMPLETADO)
 
-*Response para articleFeedbacks pendientes*
+*Response para articleFeedbacks pendientes/completados*
 `200 OK` si el usuario está autenticado
 ```json
 [
@@ -192,27 +192,13 @@ status: permite filtrar feedbacks por estado (PENDIENTE/COMPLETADO)
     "articleFeedbackId": "12345",
     "articleId": "56789",
     "userId": "101112",
-    "status": "PENDIENTE",
+    "status": "PENDIENTE" ,  
     "createdAt": "2024-10-12T08:42:00Z"
   },
   ...
 ]
 ```
-*Response para articleFeedbacks por usuario*
-`200 OK` si el usuario está autenticado
-```json
-[
-  {
-    "articleFeedbackId": "12348",
-    "comment": "Me gustó mucho",
-    "liked": true,
-    "createdAt": "2024-10-12T08:42:00Z"
-    "updatedAt": "2024-10-15T08:42:00Z"
-  },
-  ...
-]
 
-```
 *Otras responses para ambos casos*
 `401 UNAUTHORIZED` si el usuario no está autenticado
 
