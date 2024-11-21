@@ -24,14 +24,6 @@ public class LikeUpdatePublisher {
     }
 }
 
-    /* public void publishLikeUpdate(Long articleId, int likes, int dislikes) {
-        LikeUpdateMessage message = new LikeUpdateMessage(articleId, likes, dislikes);
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.UPDATE_LIKES_EXCHANGE,
-                RabbitMQConfig.UPDATE_LIKES_QUEUE,
-                message
-        );
-        System.out.println("Mensaje enviado a update_likes_queue: " + message);
-    }*/
+
 
 

@@ -3,7 +3,7 @@ package com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.service;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain.ArticleFeedback;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain.ArticleFeedbackDTO;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain.ArticleSummary;
-import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.exceptions.ResourceNotFoundException;
+import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.utils.exceptions.ResourceNotFoundException;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.rabbit.LikeUpdatePublisher;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.repository.ArticleFeedbackRepository;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.repository.ArticleSummaryRepository;
@@ -28,11 +28,11 @@ public class ArticleFeedbackService {
 
 
     // Obtener feedbacks por estado
-    public List<ArticleFeedback> getFeedbacksByStatus(String status) {
+    public List<ArticleFeedback> getFeedbacksByStatusAndUserId(String status, String userId) {
         if (status.equals("PENDIENTE")) {
-            return feedbackRepository.findByStatus("PENDIENTE");
+            return feedbackRepository.findByStatusAndUserId("PENDIENTE", userId);
         }else
-            return feedbackRepository.findByStatus("COMPLETADO");
+            return feedbackRepository.findByStatusAndUserId("COMPLETADO", userId);
     }
 
     // Crear o actualizar un feedback
@@ -61,7 +61,7 @@ public class ArticleFeedbackService {
         feedback.setStatus("COMPLETADO");
         feedback.setUpdatedAt(new java.util.Date());
 
-        // envio mensaje a rabbit para actualizar summary
+        // envio mensaje a rabbit para actualizar summary VER COMO GUARDAR ANTES
         likeUpdatePublisher.publishLikeUpdate(articleId, feedbackDTO.getLiked());
 
         //Guardo feedback
@@ -71,15 +71,11 @@ public class ArticleFeedbackService {
 
     // Listar feedbacks por artículo
     public List<ArticleFeedback> getFeedbacksByArticle(String articleId) {
-        //ACTUALIZAR CONTEO DE LIKES??
+        //ACTUALIZAR CONTEO DE LIKES CON MENSAJE RABBIT
         return feedbackRepository.findByArticleId(articleId);
     }
 
-    // Listar feedbacks por usuario
-    //Falta autenticacion
-    public List<ArticleFeedback> getFeedbacksByUser(String userId) {
-        return feedbackRepository.findByUserId(userId);
-    }
+
 
     //Actualizar conteo de likes
     public void updateLikes(String articleId, Boolean liked){
@@ -109,6 +105,12 @@ public class ArticleFeedbackService {
         // Guardar el resumen actualizado
         summaryRepository.save(summary);
     }
+//    // Listar feedbacks por usuario
+//    //Falta autenticacion
+//    no hace falta este metodo
+//    public List<ArticleFeedback> getFeedbacksByUser(String userId) {
+//        return feedbackRepository.findByUserId(userId);
+//    }
 
     }
 

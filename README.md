@@ -13,21 +13,22 @@ La base de datos del microservicio es almacenada en MongoDB
 -
 
 
-![](resources/ClassDiagramV3.jpg)
+![](resources/ClassDiagramV4.jpg)
 
 _ArticleFeedback_
-- articleFeedbackId: Long
-- userId: Long
-- articleId: Long
-- statusArticleFeedbackId: Long
+- articleFeedbackId: String
+- userId: String
+- articleId: String
+- statusArticleFeedbackId: String
 - comment: String
-- liked: boolean
+- liked: Boolean
 - createdAt: Date
 - updatedAt: Date
-- status: String //PENDIENTE o COMPLETADO
+- status: String _(PENDIENTE o COMPLETADO)_
 
 _ArticleLikeSummary_
-- articleId: Long
+- articleLikeSummaryId: String
+- articleId: String
 - totalLikes: int
 - totalDislikes: int
 
@@ -36,8 +37,8 @@ _ArticleLikeSummary_
 -
 Este microservicio se comunica con los demás del ecosistema del e-commerce a través de Rabbit.
 
-- Order_placed (servicio de catálogo)
-ArticleFeedbackMS escucha el mensaje "order_placed" de catálogo para posteriormente crear un ArticleFeedback con estado "pendiente".
+- Order_placed 
+ArticleFeedbackMS escucha el mensaje "order_placed"  para posteriormente crear un ArticleFeedback con estado "pendiente".
 
 - update_likes_queue para el conteo de likes/dislikes
 ArticleFeedbackMS emite un mensaje a la cola update_likes_queue para que luego dicho evento actualice el conteo de likes y dislikes de un articulo de manera asincrónica con ArticleSummary para mantener una contabilización precisa de likes y dislikes para cada artículo.
@@ -55,7 +56,7 @@ Casos de Uso de ArticleFeedback
 **Salida:** El feedback se almacena y se asocia con el artículo, el usuario, y se inicializa con status PENDIENTE.
 
 **Camino Normal:**
-1. El sistem escucha el evento order_placed
+1. El sistema escucha el evento order_placed
 2. Se extraen userId y articleId del evento
 3. Se crea un nuevo ArticleFeedback con status en PENDIENTE, con el articleId y userId de la orden que se recibió.
 
@@ -67,7 +68,7 @@ Casos de Uso de ArticleFeedback
 
 **Precondición:** El usuario debe estar autenticado.
 
-**Entradas:** userId
+**Entradas:** userId (String)
 
 **Salida:** Lista de ArticleFeedbacks con estado PENDIENTE.
 
@@ -86,7 +87,7 @@ Casos de Uso de ArticleFeedback
 
 **Precondición:** El usuario debe estar autenticado, y el ArticleFeedback debe tener estado PENDIENTE.
 
-**Entradas:** articleFeedbackId, comment(string) , liked (boolean).
+**Entradas:** articleFeedbackId(string), comment(string) , liked (boolean).
 
 **Resultado:** El articleFeedback cambia su estado a COMPLETADO y se actualiza el campo updatedAt. Se invoca asincrónicamente el _CU: Actualizar conteo de likes_ a través de RabbitMQ, publicando un mensaje en una cola _update_likes_queue_
 
@@ -104,13 +105,15 @@ Casos de Uso de ArticleFeedback
 -
 **Descripción:** Después de coompletar un feedback, calcula el conteo de likes y dislikes de un artículo desde cero.
 
-**Entradas:** liked (boolean), articuloId
+**Entradas:** 
+ - liked (boolean) _Opcional, si se incluye se incrementa en 1 el conteo_
+ - articuloId
 
 **Resultado:** _ArticleSummary_ actualizado con conteo correcto de _totaLikes_ y _totalDislikes_.
 
 **Camino Normal:**
 1. Se realiza una consulta en la base de datos para obtener todos los ArticleFeedbacks para el articleId.
-2. Se cuenta el número de likes y dislkes y se actualiza los valores totalLikes y totalDislikes en articleSummary para articleId.
+2. Se cuenta el número de likes y dislkes y se actualiza los valores totalLikes y totalDislikes en articleSummary para articleId y se incrementan si el booleano liked es distinto de nulo.
 3. El sistema guarda los valores actualizados en la base de datos.
 
 **Camino Alternativo:**
@@ -213,7 +216,7 @@ Authorization: Bearer token
 
 *Path Params*
 
-articleFeedbackId: ID del feedback a completar.
+articleFeedbackId(String): ID del feedback a completar.
 
 *Body*
 ```json
@@ -237,7 +240,7 @@ articleFeedbackId: ID del feedback a completar.
 
 
 *Path Parameters*
-- articleId (Long): ID del artículo para filtrar los feedbacks por artículo.
+- articleId (String): ID del artículo para filtrar los feedbacks por artículo.
 
 *Response*
 
@@ -277,16 +280,14 @@ articleFeedbackId: ID del feedback a completar.
 -
 `GET /v1/article-feedback/{articleId}/summary`
 
-*Headers*
 
-Authorization: Bearer token
 
 *Path Params*
-- articleId (Long): ID del artículo para filtrar los feedbacks por artículo.
+- articleId (String): ID del artículo para filtrar los feedbacks por artículo.
 
 
 *Response*
-`200 OK` si el usuario está autenticado.
+`200 OK`
 
 ```json
 {
@@ -296,7 +297,7 @@ Authorization: Bearer token
 }
 
 ```
-`401 UNAUTHORIZED` si el usuario no está autenticado
+
 
 
 

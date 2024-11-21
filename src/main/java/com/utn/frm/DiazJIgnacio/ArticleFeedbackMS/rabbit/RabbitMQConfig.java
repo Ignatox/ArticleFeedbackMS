@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    //Order placed
+    //Order placed queue y exchange
     public static final String SELL_FLOW_EXCHANGE = "sell_flow";
     public static final String ORDER_PLACED_QUEUE = "order_placed_queue";
     public static final String ORDER_PLACED_ROUTING_KEY = "order_placed";
 
-    //update likes
+    //Update likes queue y exchange
 
     public static final String UPDATE_LIKES_QUEUE = "update_likes_queue";
     public static final String UPDATE_LIKES_EXCHANGE = "update_likes_exchange";

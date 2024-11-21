@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface ArticleFeedbackRepository extends MongoRepository<ArticleFeedback, String> {
     //Buscar feedbacks pendientes
-    List<ArticleFeedback> findByStatus(String status);
+    List<ArticleFeedback> findByStatusAndUserId(String status, String userId);
 
     //Listar feedbacks por articulo (revisar logica)
     List<ArticleFeedback> findByArticleId(String articleId);

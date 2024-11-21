@@ -20,17 +20,5 @@ public class LikeUpdateMessage {
                 '}';
     }
 
-  /*  private int likes;
-    private int dislikes;
-
-    @Override
-    public String toString(){
-        return "LikeUpdateMessage{" +
-                "articleId='"+ articleId + '\'' +
-                ", likes=" + likes +
-                ", dislikes=" + dislikes +
-                '}';
-    }
-*/
 
 }
