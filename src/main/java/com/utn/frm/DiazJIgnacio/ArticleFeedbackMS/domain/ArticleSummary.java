@@ -1,10 +1,10 @@
 package com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain;
 
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -14,9 +14,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "article_summary") //Coleccion de mongoDB
 public class ArticleSummary {
     @Id
-    private Long articlSummaryId;
+    private String articleSummaryId;
 
-    private Long articleId;
+    private String articleId;
 
     private int totalDislikes;
     private int totalLikes;
