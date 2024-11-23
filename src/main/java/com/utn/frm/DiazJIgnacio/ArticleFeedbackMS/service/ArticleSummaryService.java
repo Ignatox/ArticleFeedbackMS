@@ -22,12 +22,19 @@ public class ArticleSummaryService {
 
     // Obtener resumen por artículo
     public ArticleSummary getSummaryByArticle(String articleId) {
-               return summaryRepository.findByArticleId(articleId)
-                       .orElseGet(() -> ArticleSummary.builder()
-                               .articleId(articleId)
-                               .totalDislikes(0)
-                               .totalLikes(0)
-                               .build());
 
+      Optional<ArticleSummary> optionalSummary = summaryRepository.findByArticleId(articleId);
+      //Si no encuentra un summary, crea uno nuevo inicializado en 0, lo guarda y lo devuelve
+      if(optionalSummary.isEmpty()){
+          ArticleSummary newSummary = ArticleSummary.builder()
+                  .articleId(articleId)
+                  .totalLikes(0)
+                  .totalDislikes(0)
+                  .build();
+          summaryRepository.save(newSummary);
+          return newSummary;
+      }
+      //Si se encuentra un summary lo devuelve
+      return optionalSummary.get();
           }
 }

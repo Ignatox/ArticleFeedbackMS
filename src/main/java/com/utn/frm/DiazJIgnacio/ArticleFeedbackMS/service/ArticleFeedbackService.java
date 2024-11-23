@@ -8,6 +8,7 @@ import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.rabbit.LikeUpdatePublisher;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.repository.ArticleFeedbackRepository;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.repository.ArticleSummaryRepository;
 import lombok.AllArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,16 +44,15 @@ public class ArticleFeedbackService {
     }
 
 
-    //Falta autenticación?
     //Primera visión
+    //HACER QUE GUARDE ANTES DE EMITIR EL MENSAJE
     public ArticleFeedback updateFeedback(String articleFeedbackId, ArticleFeedbackDTO feedbackDTO){
+
             // Buscar el feedback por ID
         Optional<ArticleFeedback> OptionalFeedback = feedbackRepository.findById(articleFeedbackId);
 
         //Verifico si existe
         ArticleFeedback feedback = OptionalFeedback.orElseThrow(() -> new ResourceNotFoundException("Feedback no encontrado con id:" + articleFeedbackId));
-
-        String articleId = feedback.getArticleId();
 
 
         // Actualizar los campos del feedback
@@ -61,18 +61,29 @@ public class ArticleFeedbackService {
         feedback.setStatus("COMPLETADO");
         feedback.setUpdatedAt(new java.util.Date());
 
-        // envio mensaje a rabbit para actualizar summary VER COMO GUARDAR ANTES
+        //Guardo el feedback primero
+        ArticleFeedback savedFeedback = feedbackRepository.save(feedback);
+
+        String articleId = savedFeedback.getArticleId();
+
+        // envio mensaje a rabbit para actualizar summary
         likeUpdatePublisher.publishLikeUpdate(articleId, feedbackDTO.getLiked());
 
         //Guardo feedback
-        return feedbackRepository.save(feedback);
+        return savedFeedback;
     }
 
 
     // Listar feedbacks por artículo
     public List<ArticleFeedback> getFeedbacksByArticle(String articleId) {
         //ACTUALIZAR CONTEO DE LIKES CON MENSAJE RABBIT
-        return feedbackRepository.findByArticleId(articleId);
+        //likeUpdatePublisher.publishLikeUpdate(articleId, null);
+
+        //Actualizar conteo sincronicamente
+        updateLikes(articleId, null);
+
+        //Busco los feedbacks ya completados
+        return feedbackRepository.findByStatusAndArticleId("COMPLETADO",articleId);
     }
 
 
@@ -86,7 +97,10 @@ public class ArticleFeedbackService {
         //Defino like y dislike como enteros para incrementar el total correspondiente
         int like =  0;
         int dislike = 0;
-        if(liked){like = 1;}else{ dislike = 1;}
+        if(liked != null){
+            if(liked){like = 1;}else{ dislike = 1;}
+        }
+
 
         // Buscar o crear un resumen para el artículo
         ArticleSummary summary = summaryRepository.findByArticleId(articleId).orElse(null);
@@ -103,6 +117,7 @@ public class ArticleFeedbackService {
             summary.setTotalDislikes(totalDislikes + dislike);
         }
         // Guardar el resumen actualizado
+        System.out.println("Actualizando conteo de likes");
         summaryRepository.save(summary);
     }
 //    // Listar feedbacks por usuario

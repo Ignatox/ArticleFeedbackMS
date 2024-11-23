@@ -14,9 +14,10 @@ public class LikeUpdateMessage {
 
     @Override
     public String toString(){
+
         return "LikeUpdateMessage{" +
                 "articleId='"+ articleId + '\'' +
-                ", liked=" + liked +
+                ", liked=" + (liked!= null ? liked : "null") +
                 '}';
     }
 

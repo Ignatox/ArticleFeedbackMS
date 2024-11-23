@@ -2,6 +2,7 @@ package com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain;
 
 
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,7 +20,7 @@ import java.util.Date;
 public class ArticleFeedback {
 
     @Id
-    private String ArticleFeedbackID;
+    private ObjectId ArticleFeedbackID;
 
     private String articleId;
     private String userId;

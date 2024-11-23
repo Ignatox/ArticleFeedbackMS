@@ -7,11 +7,20 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TokenInvalidationListener {
-   /* @Autowired
+    @Autowired
     private TokenService tokenService;
 
-    @RabbitListener(queues = "auth.invalidate")
-    public void handleInvalidation(String token){
-        tokenService.invalidate(token);
+    @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
+    public void handleInvalidation(String message){
+        System.out.println("Mensaje recibido para invalidar token" + message);
+        tokenService.invalidate(message); //Invalida el token en el cache local
+    }
+
+
+   /*  Estructura del mensaje en JSON
+   {
+        "correlation_id": "123123",
+            "message": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     }*/
+
 }

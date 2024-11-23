@@ -15,8 +15,12 @@ public class LikeUpdateListener {
     private final ArticleFeedbackService feedbackService;
     @RabbitListener(queues = RabbitMQConfig.UPDATE_LIKES_QUEUE)
     public void handleLikeUpdate(LikeUpdateMessage message) {
+        String articleId = message.getArticleId();
+        Boolean liked = message.getLiked();
+
         // Actualizar el resumen del artículo
-        feedbackService.updateLikes(message.getArticleId(), message.getLiked());
+
+        feedbackService.updateLikes(articleId, liked);
     }
 
 

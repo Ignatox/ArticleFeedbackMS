@@ -12,7 +12,7 @@ public interface ArticleFeedbackRepository extends MongoRepository<ArticleFeedba
     List<ArticleFeedback> findByStatusAndUserId(String status, String userId);
 
     //Listar feedbacks por articulo (revisar logica)
-    List<ArticleFeedback> findByArticleId(String articleId);
+    List<ArticleFeedback> findByStatusAndArticleId(String status,String articleId);
 
     //Listar feedbacks por usuario (revisar logica)
     List<ArticleFeedback> findByUserId(String userId);

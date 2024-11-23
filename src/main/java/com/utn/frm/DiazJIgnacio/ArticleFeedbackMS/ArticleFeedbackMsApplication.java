@@ -19,7 +19,7 @@ public class ArticleFeedbackMsApplication {
 
 	}
 
-	@Bean
+	/*@Bean
 	public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 		return args -> {
 			// Obtener el repositorio de ArticleFeedback
@@ -40,6 +40,6 @@ public class ArticleFeedbackMsApplication {
 
 			System.out.println("Feedback hardcodeado guardado en la base de datos.");
 		};
-	}
+	}*/
 
 }

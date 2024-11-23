@@ -10,6 +10,7 @@ import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.service.ArticleFeedbackService
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.service.ArticleSummaryService;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.utils.exceptions.SimpleError;
 import lombok.AllArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +57,7 @@ public class ArticleFeedbackController {
     @PutMapping("/{articleFeedbackId}")
 
     public ResponseEntity<ArticleFeedback> saveFeedback(
-            @RequestParam String articleFeedbackId,
+            @PathVariable String articleFeedbackId,
             @RequestHeader("Authorization") String authHeader,
             @RequestBody ArticleFeedbackDTO feedbackDTO){
     try{
