@@ -19,27 +19,5 @@ public class ArticleFeedbackMsApplication {
 
 	}
 
-	/*@Bean
-	public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-		return args -> {
-			// Obtener el repositorio de ArticleFeedback
-			ArticleFeedbackRepository feedbackRepository = ctx.getBean(ArticleFeedbackRepository.class);
-
-			// Crear una instancia de ArticleFeedback con datos hardcodeados
-			ArticleFeedback feedback = ArticleFeedback.builder()
-					.articleId("123")
-					.userId("user123")
-					.comment("Me gustó mucho el artículo")
-					.liked(true)
-					.status("COMPLETADO")
-					.createdAt(new Date())
-					.build();
-
-			// Guardar la instancia en la base de datos
-			feedbackRepository.save(feedback);
-
-			System.out.println("Feedback hardcodeado guardado en la base de datos.");
-		};
-	}*/
 
 }

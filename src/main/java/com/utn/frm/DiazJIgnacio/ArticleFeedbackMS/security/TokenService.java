@@ -21,12 +21,15 @@ public class TokenService {
 
     private Environment env;
 
+
     public TokenService(Environment env){
         this.env = env;
     }
 
     public void validate(String token) throws SimpleError{
         if(token == null || token.isEmpty()){
+            //Test
+            System.out.println("Fallo en la request a authMS: Token nulo");
             throw new SimpleError(401, "Unauthorized");
         }
         User cachedUser = cache.get(token);
@@ -36,6 +39,8 @@ public class TokenService {
 
         User user = retrieveUser(token);
         if (user == null) {
+            //Test
+            System.out.println("Fallo en la request a authMS: No se pudo recuperar el user");
             throw new SimpleError(401, "Unauthorized");
         }
         cache.put(token, user);
@@ -72,6 +77,7 @@ public class TokenService {
         try{
             HttpResponse response = client.execute(request);
             if (response.getStatusLine().getStatusCode()!= 200){
+                System.out.println("Respuesta de AuthMS:" + (response.getStatusLine().getStatusCode()));
                 return null;
             }
             HttpEntity responseEntity = response.getEntity();
@@ -88,5 +94,7 @@ public class TokenService {
         }
 
     }
+
+
 
 }

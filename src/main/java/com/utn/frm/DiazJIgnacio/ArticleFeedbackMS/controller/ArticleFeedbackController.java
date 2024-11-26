@@ -5,6 +5,7 @@ import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain.ArticleFeedbackDTO;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain.ArticleSummary;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.security.TokenService;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.security.User;
+import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.security.Validations;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.utils.exceptions.ResourceNotFoundException;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.service.ArticleFeedbackService;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.service.ArticleSummaryService;
@@ -12,6 +13,7 @@ import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.utils.exceptions.SimpleError;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,9 @@ public class ArticleFeedbackController {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private Validations validations;
+
     // Endpoint para obtener feedbacks pendientes o completados por usuario
     @GetMapping("/user")
     public ResponseEntity<List<ArticleFeedback>> getFeedbacksByStatusAndUserId(
@@ -37,8 +42,8 @@ public class ArticleFeedbackController {
         tokenService.validate(authHeader);
         User user = tokenService.getUser(authHeader);
         String userId = user.getId();
-
-        return ResponseEntity.ok(feedbackService.getFeedbacksByStatusAndUserId(status, userId));
+        System.out.println("Buscando feedbacks:" + status + "del user:" + userId);
+         return ResponseEntity.ok(feedbackService.getFeedbacksByStatusAndUserId(status, userId));
     } catch (SimpleError e) {
         return ResponseEntity.status(e.getStatusCode()).body(null);
     } catch (Exception e) {
@@ -58,17 +63,20 @@ public class ArticleFeedbackController {
 
     public ResponseEntity<ArticleFeedback> saveFeedback(
             @PathVariable String articleFeedbackId,
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestBody ArticleFeedbackDTO feedbackDTO){
     try{
         tokenService.validate(authHeader);
-
-        ArticleFeedback updatedFeedback = feedbackService.updateFeedback(articleFeedbackId, feedbackDTO);
+     //Luego de verificar que esta validado verifico si es el mismo
+       String userId = tokenService.getUser(authHeader).getId();
+         ArticleFeedback updatedFeedback = feedbackService.updateFeedback(userId, articleFeedbackId, feedbackDTO);
         return ResponseEntity.ok(updatedFeedback);
 
     } catch (SimpleError e) {
+        System.out.println("Agarro el error de body nulo");
         return ResponseEntity.status(e.getStatusCode()).body(null);
     } catch (Exception e) {
+        System.out.println("Agarro el error interno??");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
     }

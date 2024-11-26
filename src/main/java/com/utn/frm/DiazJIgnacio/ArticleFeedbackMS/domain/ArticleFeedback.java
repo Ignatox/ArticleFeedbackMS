@@ -20,7 +20,7 @@ import java.util.Date;
 public class ArticleFeedback {
 
     @Id
-    private ObjectId ArticleFeedbackID;
+    private String articleFeedbackId;
 
     private String articleId;
     private String userId;

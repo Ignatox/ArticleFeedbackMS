@@ -1,10 +1,12 @@
 package com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.repository;
 
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain.ArticleFeedback;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ArticleFeedbackRepository extends MongoRepository<ArticleFeedback, String> {
@@ -16,10 +18,6 @@ public interface ArticleFeedbackRepository extends MongoRepository<ArticleFeedba
 
     //Listar feedbacks por usuario (revisar logica)
     List<ArticleFeedback> findByUserId(String userId);
-
-    //Buscar articleFeedback por id
-    //ArticleFeedback findById(String articleFeedbackId);
-
 
     //Contadorers de cantidad de feedback con liked y disliked
     int countByArticleIdAndLikedTrue(String articleId);

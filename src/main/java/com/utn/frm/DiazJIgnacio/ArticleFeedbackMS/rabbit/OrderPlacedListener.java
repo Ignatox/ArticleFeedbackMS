@@ -16,13 +16,12 @@ public class OrderPlacedListener {
     private final ObjectMapper objectMapper;
 
     @RabbitListener(queues = RabbitMQConfig.ORDER_PLACED_QUEUE)
-    public void handleOrderPlaced(String message){
+    //String message
+    public void handleOrderPlaced(OrderPlacedEvent event){
         try {
             // Deserializar el mensaje JSON a un objeto OrderPlacedEvent
-            OrderPlacedEvent event = objectMapper.readValue(message, OrderPlacedEvent.class);
 
             // Crear un nuevo feedback
-            // SUPONIENDO QUE order_placed emite un JSON con articleId y UserID (VERIFICAR)
             ArticleFeedback feedback = new ArticleFeedback();
             feedback.setUserId(event.getUserId());
             feedback.setArticleId(event.getArticleId());

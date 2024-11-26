@@ -8,4 +8,12 @@ import lombok.Data;
 public class OrderPlacedEvent {
     private String userId;
     private String articleId;
+
+    @Override
+    public String toString() {
+        return "OrderPlacedEvent{" +
+                "userId='" + userId + '\'' +
+                ", articleId='" + articleId + '\'' +
+                '}';
+    }
 }
