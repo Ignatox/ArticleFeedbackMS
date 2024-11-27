@@ -23,12 +23,6 @@ public class RabbitMQConfig {
     public static final String UPDATE_LIKES_QUEUE = "update_likes_queue";
     public static final String UPDATE_LIKES_EXCHANGE = "update_likes_exchange";
 
-    //Invalidation
-    public static final String EXCHANGE_NAME = "auth"; //exchange definido en auth
-    public static final String QUEUE_NAME = "article_feedback_logout";
-
-
-
     //Exchange de OrderService
     @Bean
     public TopicExchange sellFlowExchange(){
@@ -48,35 +42,25 @@ public class RabbitMQConfig {
                 .to(sellFlowExchange)
                 .with(ORDER_PLACED_ROUTING_KEY);
     }
+
+    //Direct Exchange de updateLikes
     @Bean
     public DirectExchange updateLikesExchange(){
         return new DirectExchange(UPDATE_LIKES_EXCHANGE);
     }
+    //Queue de updateLikes
     @Bean
     public Queue updateLikesQueue() {
         return new Queue(UPDATE_LIKES_QUEUE, true);
     }
 
+    //Binding de updatelikes
     @Bean
     public Binding bindingUpdateLikesQueue(Queue updateLikesQueue, DirectExchange updateLikesExchange) {
         return BindingBuilder.bind(updateLikesQueue).to(updateLikesExchange).with(UPDATE_LIKES_QUEUE);
     }
 
-    //Invalidation
-    @Bean
-    public FanoutExchange fanoutExchange(){
-        return new FanoutExchange(EXCHANGE_NAME);
-    }
-    @Bean
-    public Queue logoutQueue(){
-        return new Queue(QUEUE_NAME, true);
-    }
-
-    @Bean
-    public Binding binding(Queue logoutQueue, FanoutExchange fanoutExchange){
-        return BindingBuilder.bind(logoutQueue).to(fanoutExchange);
-    }
-
+     //Parseo de mensajes a formato JSON
     @Bean
     public MessageConverter messageConverter() {
         Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();

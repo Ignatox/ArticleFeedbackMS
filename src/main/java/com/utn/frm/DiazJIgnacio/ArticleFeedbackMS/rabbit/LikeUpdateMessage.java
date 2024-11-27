@@ -12,7 +12,6 @@ import java.io.Serializable;
 public class LikeUpdateMessage implements Serializable {
     private static final long serialVersionUID = 1l; //Identificador unico para la serializacion
     private String articleId;
-
     private Boolean liked;
 
     @Override

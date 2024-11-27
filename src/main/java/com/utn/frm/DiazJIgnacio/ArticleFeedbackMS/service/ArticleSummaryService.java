@@ -24,7 +24,7 @@ public class ArticleSummaryService {
     public ArticleSummary getSummaryByArticle(String articleId) {
 
       Optional<ArticleSummary> optionalSummary = summaryRepository.findByArticleId(articleId);
-      //Si no encuentra un summary, crea uno nuevo inicializado en 0, lo guarda y lo devuelve
+      //Si no encuentra un summary, crea uno nuevo inicializado en 0
       if(optionalSummary.isEmpty()){
           ArticleSummary newSummary = ArticleSummary.builder()
                   .articleId(articleId)

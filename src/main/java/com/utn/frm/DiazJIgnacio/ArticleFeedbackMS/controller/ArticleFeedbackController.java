@@ -5,13 +5,11 @@ import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain.ArticleFeedbackDTO;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.domain.ArticleSummary;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.security.TokenService;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.security.User;
-import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.security.Validations;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.utils.exceptions.ResourceNotFoundException;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.service.ArticleFeedbackService;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.service.ArticleSummaryService;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.utils.exceptions.SimpleError;
 import lombok.AllArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,15 +23,14 @@ import java.util.List;
 @RequestMapping("/v1/article-feedback")
 public class ArticleFeedbackController {
 
+    @Autowired
     private final ArticleFeedbackService feedbackService;
+    @Autowired
     private final ArticleSummaryService summaryService;
     @Autowired
     private TokenService tokenService;
 
-    @Autowired
-    private Validations validations;
-
-    // Endpoint para obtener feedbacks pendientes o completados por usuario
+    //Listar articleFeedbacks pendientes o por usuarios
     @GetMapping("/user")
     public ResponseEntity<List<ArticleFeedback>> getFeedbacksByStatusAndUserId(
         @RequestParam String status,
@@ -52,13 +49,13 @@ public class ArticleFeedbackController {
 
     }
 
-    // Endpoint para listar feedbacks por artículo
+    //Listar articleFeedbacks por artículo
     @GetMapping("/article/{articleId}")
     public ResponseEntity<List<ArticleFeedback>> getFeedbacksByArticle(@PathVariable String articleId) {
         return ResponseEntity.ok(feedbackService.getFeedbacksByArticle(articleId));
     }
 
-    // Endpoint para guardar un feedback llenado
+    //Llenar articleFeedback pendiente
     @PutMapping("/{articleFeedbackId}")
 
     public ResponseEntity<ArticleFeedback> saveFeedback(
@@ -66,22 +63,21 @@ public class ArticleFeedbackController {
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @RequestBody ArticleFeedbackDTO feedbackDTO){
     try{
+        //Validación usuario
         tokenService.validate(authHeader);
-     //Luego de verificar que esta validado verifico si es el mismo
+
        String userId = tokenService.getUser(authHeader).getId();
          ArticleFeedback updatedFeedback = feedbackService.updateFeedback(userId, articleFeedbackId, feedbackDTO);
         return ResponseEntity.ok(updatedFeedback);
 
     } catch (SimpleError e) {
-        System.out.println("Agarro el error de body nulo");
         return ResponseEntity.status(e.getStatusCode()).body(null);
     } catch (Exception e) {
-        System.out.println("Agarro el error interno??");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
     }
     }
 
-    //Endpoint para listar articleSummary de un articulo por ID
+    //Consultar Summary de un artículo por ID
     @GetMapping("/{articleId}/summary")
     public ResponseEntity<ArticleSummary> getSummary(@PathVariable String articleId){
         return ResponseEntity.ok(summaryService.getSummaryByArticle(articleId));

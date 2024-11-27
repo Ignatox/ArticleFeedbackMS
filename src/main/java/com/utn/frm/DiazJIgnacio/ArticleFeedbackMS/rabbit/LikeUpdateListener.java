@@ -18,30 +18,9 @@ public class LikeUpdateListener {
         String articleId = message.getArticleId();
         Boolean liked = message.getLiked();
 
-        // Actualizar el resumen del artículo
-
         feedbackService.updateLikes(articleId, liked);
     }
 
-
-        /*Optional<ArticleSummary> optionalSummary = summaryRepository.findByArticleId(message.getArticleId());
-        ArticleSummary summary;*/
-
-
-
-       /* if (optionalSummary.isPresent()) {
-            summary = optionalSummary.get();
-            summary.setTotalLikes(message.getLikes());
-            summary.setTotalDislikes(message.getDislikes());
-        } else {
-            summary = new ArticleSummary();
-            summary.setArticleId(message.getArticleId());
-            summary.setTotalLikes(message.getLikes());
-            summary.setTotalLikes(message.getDislikes());
-        }
-
-        summaryRepository.save(summary);
-        System.out.println("Resumen actualizado para artículo: " + message.getArticleId());*/
 
 }
 

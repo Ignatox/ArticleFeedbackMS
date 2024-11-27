@@ -13,8 +13,6 @@ public class LikeUpdatePublisher {
 
     private final RabbitTemplate rabbitTemplate;
 
-
-
     public void publishLikeUpdate(String articleId, Boolean liked) {
         LikeUpdateMessage message = new LikeUpdateMessage(articleId, liked);
         rabbitTemplate.convertAndSend(

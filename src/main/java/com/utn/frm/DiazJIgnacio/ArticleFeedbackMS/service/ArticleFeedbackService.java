@@ -9,7 +9,6 @@ import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.repository.ArticleFeedbackRepo
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.repository.ArticleSummaryRepository;
 import com.utn.frm.DiazJIgnacio.ArticleFeedbackMS.utils.exceptions.UnauthorizedError;
 import lombok.AllArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,42 +23,40 @@ public class ArticleFeedbackService {
     private final ArticleFeedbackRepository feedbackRepository;
     @Autowired
     private final ArticleSummaryRepository summaryRepository;
-
+    @Autowired
     private final LikeUpdatePublisher likeUpdatePublisher;
 
 
 
-    // Obtener feedbacks por estado
+    //Obtener articleFeedbacks PENDIENTES/COMPLETADOS de un usuario
     public List<ArticleFeedback> getFeedbacksByStatusAndUserId(String status, String userId) {
         return feedbackRepository.findByStatusAndUserId(status, userId);
 
     }
 
-    // Crear o actualizar un feedback
-    public ArticleFeedback saveFeedback(ArticleFeedback feedback) {
-        feedback.setUpdatedAt(new java.util.Date());
+    // Crear feedback
+    public void saveFeedback(String userId, String articleId) {
+        // Crear un nuevo feedback
+        ArticleFeedback feedback = new ArticleFeedback();
+        feedback.setUserId(userId);
+        feedback.setArticleId(articleId);
+        feedback.setStatus("PENDIENTE");
+        feedback.setCreatedAt(new java.util.Date());
 
-        return feedbackRepository.save(feedback);
+        feedbackRepository.save(feedback);
     }
 
-
-    //Primera visión
-    //HACER QUE GUARDE ANTES DE EMITIR EL MENSAJE
     public ArticleFeedback updateFeedback(String userId,String articleFeedbackId, ArticleFeedbackDTO feedbackDTO){
 
-            // Buscar el feedback por ID
-
-        System.out.println("Paso el optional");
         Optional<ArticleFeedback> OptionalFeedback = feedbackRepository.findById(articleFeedbackId);
 
-        //Verifico si existe
         if(OptionalFeedback.isEmpty()){
             throw new ResourceNotFoundException("Feedback no encontrado con id:" + articleFeedbackId);
         }
 
         ArticleFeedback feedback = OptionalFeedback.get();
 
-        //Verifico si el usuario es el mismo
+        //Verificar si el usuario que llena, es el propietaro del articleFeedback
         System.out.println("Verificando si el feedback corresponde a este usuario");
          if(!feedback.getUserId().equals(userId)){
             throw new UnauthorizedError("El usuario no tiene permiso para actualizar este feedback");
@@ -72,13 +69,13 @@ public class ArticleFeedbackService {
         feedback.setUpdatedAt(new java.util.Date());
 
         System.out.println("Guardando");
-        //Guardo el feedback primero
+        //Guardar el feedback antes del mensaje RabbitMQ
         ArticleFeedback savedFeedback = feedbackRepository.save(feedback);
 
         String articleId = savedFeedback.getArticleId();
 
 
-        // envio mensaje a rabbit para actualizar summary
+        //Envio de mensaje a RabbitMQ para actualizar summary
 
         try {
             likeUpdatePublisher.publishLikeUpdate(articleId, feedbackDTO.getLiked());
@@ -87,20 +84,19 @@ public class ArticleFeedbackService {
             System.out.println("Error al publicar en rabbit MQ" + e.getMessage());
             e.printStackTrace();
         }
-        System.out.println("Retornando objeto");
-        //Guardo feedback
+
+
         return savedFeedback;
     }
 
 
-    // Listar feedbacks por artículo
+    // Listar articleFeedbacks por artículo
     public List<ArticleFeedback> getFeedbacksByArticle(String articleId) {
        //Actualizar conteo sincronicamente
         updateLikes(articleId, null);
         System.out.println("Listando feedbacks COMPLETADOS para el article:" + articleId);
-
+        //Buscar los feedbacks ya completados
         String status = "COMPLETADO";
-        //Busco los feedbacks ya completados
         return feedbackRepository.findByStatusAndArticleId(status,articleId);
     }
 
@@ -108,11 +104,11 @@ public class ArticleFeedbackService {
 
     //Actualizar conteo de likes
     public void updateLikes(String articleId, Boolean liked){
-        //Contar likes y dislikes asociados al articulo
+        //Contar likes y dislikes asociados al artículo
         int totalLikes = feedbackRepository.countByArticleIdAndLikedTrue(articleId);
         int totalDislikes = feedbackRepository.countByArticleIdAndLikedFalse(articleId);
 
-        //Defino like y dislike como enteros para incrementar el total correspondiente
+        //Definición de like y dislike como enteros iniciales en 0 para incrementar
         int like =  0;
         int dislike = 0;
         if(liked != null){
@@ -130,23 +126,14 @@ public class ArticleFeedbackService {
                 .build();
 
         }else {
-            //ACTUALIZAR SUMMARY EXISTENTE
+            //Actualizar el summary existente con nuevo conteo
             summary.setTotalLikes(totalLikes + like);
             summary.setTotalDislikes(totalDislikes + dislike);
         }
-        // Guardar el resumen actualizado
+
         System.out.println("Actualizando conteo de likes");
         summaryRepository.save(summary);
     }
-
-
-
-//    // Listar feedbacks por usuario
-//    //Falta autenticacion
-//    no hace falta este metodo
-//    public List<ArticleFeedback> getFeedbacksByUser(String userId) {
-//        return feedbackRepository.findByUserId(userId);
-//    }
 
     }
 
