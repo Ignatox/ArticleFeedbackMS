@@ -109,11 +109,11 @@ public class ArticleFeedbackService {
         int totalDislikes = feedbackRepository.countByArticleIdAndLikedFalse(articleId);
 
         //Definición de like y dislike como enteros iniciales en 0 para incrementar
-        int like =  0;
-        int dislike = 0;
-        if(liked != null){
-            if(liked){like = 1;}else{ dislike = 1;}
-        }
+        //int like =  0;
+        //int dislike = 0;
+        //if(liked != null){
+         //   if(liked){like = 1;}else{ dislike = 1;}
+       // }
 
 
         // Buscar o crear un resumen para el artículo
@@ -121,14 +121,14 @@ public class ArticleFeedbackService {
         if(summary == null) {
         summary = ArticleSummary.builder()
                 .articleId(articleId)
-                .totalLikes(like)
-                .totalDislikes(dislike)
+                .totalLikes(totalLikes)
+                .totalDislikes(totalDislikes)
                 .build();
 
         }else {
             //Actualizar el summary existente con nuevo conteo
-            summary.setTotalLikes(totalLikes + like);
-            summary.setTotalDislikes(totalDislikes + dislike);
+            summary.setTotalLikes(totalLikes);
+            summary.setTotalDislikes(totalDislikes);
         }
 
         System.out.println("Actualizando conteo de likes");

@@ -52,6 +52,7 @@ public class TokenService {
         }
         User cachedUser = cache.get(token);
         if(cachedUser != null){
+            System.out.println("User recuperado del cache");
             return cachedUser;
         }
 
@@ -63,7 +64,7 @@ public class TokenService {
             return user;
         }
 
-
+        //Metodo para remover del cache al usuario
     public void invalidate(String token){
         cache.remove(token);
     }
